@@ -1,0 +1,52 @@
+﻿@model IEnumerable<DistantLearning.Models.Question>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+<p>
+    @foreach (var item in Model)
+    {
+        @if (item.QuestionName == item.QuestionAnswer)
+        {
+        @Html.ActionLink("Добавить вопрос","Create","Questions", new { id = item.TestId})
+        }
+
+    }
+
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.QuestionName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuestionAnswer)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+    @if (item.QuestionAnswer != item.QuestionName) ;
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuestionName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuestionAnswer)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.QuestionId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.QuestionId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.QuestionId">Delete</a>
+            </td>
+        </tr>
+     }
+}
+    </tbody>
+</table>
