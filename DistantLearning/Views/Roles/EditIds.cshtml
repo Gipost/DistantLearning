@@ -1,0 +1,10 @@
+﻿@model DistantLearning.Models.User
+@{
+    ViewBag.Title = "Редактирование пользователя";
+}
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="userId" value="@Model.UserId" />
+    <input type="number" name="StudentId" value="@Model.StudentId" />
+    <input type="number" name="TeacherId" value="@Model.TeacherId" />
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>

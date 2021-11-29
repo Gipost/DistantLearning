@@ -18,9 +18,9 @@ namespace DistantLearning.Controllers
     public class TestCompletesController : Controller
     {
         private readonly DBcontext _context;
-        private readonly UserManager<IdentityUser> _userManager;
-        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
-        public TestCompletesController(DBcontext context, UserManager<IdentityUser> userManager)
+        private readonly UserManager<User> _userManager;
+        private Task<User> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+        public TestCompletesController(DBcontext context, UserManager<User> userManager)
         {
             _context = context;
             _userManager = userManager;
