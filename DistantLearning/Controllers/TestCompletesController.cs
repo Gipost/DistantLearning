@@ -6,16 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using DistantLearning.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace DistantLearning.Controllers
 {
     public class TestCompletesController : Controller
     {
         private readonly DBcontext _context;
-
-        public TestCompletesController(DBcontext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+        public TestCompletesController(DBcontext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: TestCompletes
@@ -88,6 +96,8 @@ namespace DistantLearning.Controllers
                     _context.Add(answer);
                 }
             }
+            var user = await GetCurrentUserAsync();
+            
             await _context.SaveChangesAsync();
             ViewData["Studentid"] = new SelectList(_context.Students, "ID", "ID", testComplete.Studentid);
             ViewData["Subjectid"] = new SelectList(_context.subjects, "SubjectId", "SubjectId", testComplete.Subjectid);
@@ -110,6 +120,7 @@ namespace DistantLearning.Controllers
             }
             var dBcontext = _context.answersCompleted.Where(c => c.TestCompleteID == id).Include(c => c.Question);
             return View(await dBcontext.ToListAsync());
+            
         }
 
         // POST: TestCompletes/Edit/5
