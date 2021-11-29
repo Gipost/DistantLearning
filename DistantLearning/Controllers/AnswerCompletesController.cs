@@ -104,6 +104,13 @@ namespace DistantLearning.Controllers
             {
                 try
                 {
+                    var answer = answerComplete.Answer;
+                    answerComplete = await _context.answersCompleted.FindAsync(id);
+                    if (answerComplete == null)
+                    {
+                        return NotFound();
+                    }
+                    answerComplete.Answer = answer;
                     _context.Update(answerComplete);
                     await _context.SaveChangesAsync();
                 }
@@ -118,9 +125,10 @@ namespace DistantLearning.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(TestCompletesController.Index));
             }
-           
+            ViewData["QuestionID"] = new SelectList(_context.questions, "QuestionId", "QuestionId", answerComplete.QuestionID);
+            ViewData["TestCompleteID"] = new SelectList(_context.testsCompleted, "TestCompleteId", "TestCompleteId", answerComplete.TestCompleteID);
             return View(answerComplete);
         }
 
