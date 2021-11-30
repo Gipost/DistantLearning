@@ -80,6 +80,11 @@ namespace DistantLearning.Controllers
         public async Task<IActionResult> Create([Bind("TestCompleteId,Studentid,Subjectid,Testid,Mark")] TestComplete testComplete)
         {
             testComplete.Mark = -1;
+            var user = await GetCurrentUserAsync();
+            if (user.StudentId != null) //берем айдишник студента для добавление его теста
+            {
+                testComplete.Studentid = (int)user.StudentId; 
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(testComplete);
@@ -96,7 +101,7 @@ namespace DistantLearning.Controllers
                     _context.Add(answer);
                 }
             }
-            var user = await GetCurrentUserAsync();
+            
             
             await _context.SaveChangesAsync();
             ViewData["Studentid"] = new SelectList(_context.Students, "ID", "ID", testComplete.Studentid);
