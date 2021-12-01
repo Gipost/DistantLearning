@@ -78,30 +78,6 @@ namespace DistantLearning.Controllers
 
             return NotFound();
         }
-        public async Task<IActionResult> EditIds(string userId)
-        {
-            // получаем пользователя
-            User user = await _userManager.FindByIdAsync(userId);
-            return View(user);
-        }
-        [HttpPost]
-        public async Task<IActionResult> EditIds(string Id, [Bind("StudentId,TeacherId")] User user)
-        {
-            // получаем пользователя
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await _userManager.UpdateAsync(user);
-                }
-                 catch (DbUpdateConcurrencyException)
-                {
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(user);
-        }
         [HttpPost]
         public async Task<IActionResult> Edit(string userId, List<string> roles)
         {
