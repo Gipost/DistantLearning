@@ -32,7 +32,6 @@
                 @Html.DisplayFor(modelItem => item.Answer)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.AnswerCompleteId">Edit</a>
                 @Html.ActionLink("Ответить","Edit","AnswerCompletes", new { id = item.AnswerCompleteId})
             </td>
         </tr>

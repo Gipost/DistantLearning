@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
@@ -19,6 +20,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: AnswerCompletes
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> Index()
         {
             var dBcontext = _context.answersCompleted.Include(a => a.Question).Include(a => a.TestComplete);
@@ -26,6 +28,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: AnswerCompletes/Details/5
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,6 +49,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: AnswerCompletes/Create
+        [Authorize(Roles = "Администратор")]
         public IActionResult Create()
         {
             ViewData["QuestionID"] = new SelectList(_context.questions, "QuestionId", "QuestionId");
@@ -73,14 +77,16 @@ namespace DistantLearning.Controllers
         }
 
         // GET: AnswerCompletes/Edit/5
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
             var answerComplete = await _context.answersCompleted.FindAsync(id);
+            var question = await _context.questions.FindAsync(answerComplete.QuestionID);
+            ViewData["Questiontext"] = question.QuestionName;
             if (answerComplete == null)
             {
                 return NotFound();
@@ -125,7 +131,7 @@ namespace DistantLearning.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(TestCompletesController.Index));
+                    return Redirect("~/TestCompletes");
             }
             ViewData["QuestionID"] = new SelectList(_context.questions, "QuestionId", "QuestionId", answerComplete.QuestionID);
             ViewData["TestCompleteID"] = new SelectList(_context.testsCompleted, "TestCompleteId", "TestCompleteId", answerComplete.TestCompleteID);
@@ -133,6 +139,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: AnswerCompletes/Delete/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
@@ -45,6 +46,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Subjects/Create
+        [Authorize(Roles = "Администратор")]
         public IActionResult Create()
         {
             ViewData["TeacherName"] = new SelectList(_context.Teachers, "ID", "Name");
@@ -69,6 +71,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Subjects/Edit/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -122,6 +125,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Subjects/Delete/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
-
+using Microsoft.AspNetCore.Authorization;
 namespace DistantLearning.Views.Home
 {
+    [Authorize(Roles = "Администратор")]
     public class DegreesController : Controller
     {
         private readonly DBcontext _context;

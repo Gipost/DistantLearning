@@ -1,5 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Главная";
 }
-
-
+<p>
+   @Html.ActionLink("Пройти тесты","Index","TestCompletes")
+</p>
+<p>
+   @Html.ActionLink("Создание тестов","Index","Tests")
+</p>
+<p>
+   @Html.ActionLink("Список студентов","Index","Students")
+</p>
+<p>
+   @Html.ActionLink("Список преподавателей","Index","Teachers")
+</p>
+<p>
+   @Html.ActionLink("Список дисциплин","Index","Subjects")
+</p>

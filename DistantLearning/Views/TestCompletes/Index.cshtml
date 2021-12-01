@@ -21,22 +21,40 @@
             <th>
                 @Html.DisplayNameFor(model => model.Test)
             </th>
+          @if (@ViewData["Teacher"] == "1")
+                {
+            <td>
+                имя студента
+            </td>
+                }
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            @if (item.Mark != -1)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Mark) балл(ов)
+                    </td>
+                }
+                else
+                {
+                   <td>
+                    Не оценено
+                   </td>
+                }
             <td>
-                @Html.DisplayFor(modelItem => item.Mark)
+                @Html.DisplayFor(modelItem => item.Subject.SubjectName)
             </td>
+            @if (@ViewData["Teacher"] == "1")
+                {
             <td>
-                @Html.DisplayFor(modelItem => item.Subject.SubjectId)
+                @Html.DisplayFor(modelItem => item.Student.Name)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Test.TestId)
-            </td>
-            <td>
+                }
+                <td>
                 <a asp-action="Edit" asp-route-id="@item.TestCompleteId">Пройти</a> |
                 <a asp-action="Mark" asp-route-id="@item.TestCompleteId">Оценить</a> |
                 <a asp-action="Delete" asp-route-id="@item.TestCompleteId">Удалить</a>

@@ -9,6 +9,7 @@ using DistantLearning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
@@ -48,6 +49,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Teachers/Create
+        [Authorize(Roles = "Администратор")]
         public IActionResult Create()
         {
             ViewData["DegreeId"] = new SelectList(_context.Degrees, "id", "name");
@@ -74,6 +76,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Teachers/Edit/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -125,6 +128,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Teachers/Delete/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

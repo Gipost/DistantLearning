@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
+    [Authorize(Roles = "Teacher")]
     public class QuestionsController : Controller
     {
         private readonly DBcontext _context;
@@ -63,7 +65,7 @@ namespace DistantLearning.Controllers
             {
                 _context.Add(question);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(TestsController.Index));
+                return Redirect("~/Tests");
             }
             return View(question);
         }

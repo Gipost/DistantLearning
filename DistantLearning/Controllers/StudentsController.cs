@@ -9,9 +9,11 @@ using DistantLearning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
+
     public class StudentsController : Controller
     {
         private readonly DBcontext _context;
@@ -57,6 +59,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Students/Create
+        [Authorize(Roles = "Администратор")]
         public IActionResult Create()
         {
             ViewData["GroupID"] = new SelectList(_context.Groups, "Id", "Name");
@@ -84,6 +87,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Students/Edit/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -136,6 +140,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: Students/Delete/5
+        [Authorize(Roles = "Администратор")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

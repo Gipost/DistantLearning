@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DistantLearning.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
+    [Authorize(Roles = "Администратор")]
     public class RolesController : Controller
     {
         RoleManager<IdentityRole> _roleManager;

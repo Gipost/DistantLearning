@@ -13,10 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
-
+using Microsoft.AspNetCore.Authorization;
 namespace DistantLearning.Controllers
 {
-
     public class TestCompletesController : Controller
     {
         private readonly DBcontext _context;
@@ -29,14 +28,26 @@ namespace DistantLearning.Controllers
         }
 
         // GET: TestCompletes
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
-            var dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
-            return View(await dBcontext.ToListAsync());
+            if (student == null)
+            {
+                var teacher = await _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
+                var dBcontext1 = _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
+                ViewData["Teacher"] = "1";
+                return View(await dBcontext1.ToListAsync());
+            }
+            else
+            {
+                var dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
+                return View(await dBcontext.ToListAsync());
+            }
         }
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Mark(int? id)
         {
             var Test = await _context.testsCompleted.FindAsync(id);
@@ -61,7 +72,8 @@ namespace DistantLearning.Controllers
                 return NotFound();
             }
             if (testComplete.Mark == -1) 
-            { 
+            {
+                testComplete.Mark = 0;
                 foreach (var question in _context.answersCompleted.Where(t => t.TestCompleteID == testComplete.TestCompleteId))
                 {
                     if (question.Answer.Equals(question.RightAnswer))
@@ -76,10 +88,10 @@ namespace DistantLearning.Controllers
         }
 
         // GET: TestCompletes/Create
+        [Authorize(Roles = "Student")]
         public IActionResult Create()
         {
             ViewData["Studentid"] = new SelectList(_context.Students, "ID", "Name");
-            ViewData["Subjectid"] = new SelectList(_context.subjects, "SubjectId", "SubjectName");
             ViewData["Testid"] = new SelectList(_context.tests, "TestId", "TestName");
             return View();
         }
@@ -96,25 +108,28 @@ namespace DistantLearning.Controllers
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
             testComplete.Studentid = student.ID;
+            var test = await _context.tests
+    .FirstOrDefaultAsync(m => m.TestId == testComplete.Testid);
+            testComplete.Subjectid = test.SubjectId;
             if (ModelState.IsValid)
             {
                 _context.Add(testComplete);
                 await _context.SaveChangesAsync();
             }
             AnswerComplete answer = new AnswerComplete();
-            foreach (var question in _context.questions)
+            var questions = _context.questions.ToList();
+            foreach (var question in questions)
             {
-                if (question.TestId == testComplete.Testid && question.QuestionName != question.QuestionAnswer)
+                if (question.TestId == testComplete.Testid && question.QuestionName != "hiddenanswer")
                 {
                     answer.TestCompleteID = testComplete.TestCompleteId;
                     answer.QuestionID = question.QuestionId;
                     answer.RightAnswer = question.QuestionAnswer;
-                    _context.Add(answer);
+                    _context.answersCompleted.Add(answer);
+                    answer = new AnswerComplete();
                 }
+                await _context.SaveChangesAsync();
             }
-            
-            
-            await _context.SaveChangesAsync();
             ViewData["Studentid"] = new SelectList(_context.Students, "ID", "ID", testComplete.Studentid);
             ViewData["Subjectid"] = new SelectList(_context.subjects, "SubjectId", "SubjectId", testComplete.Subjectid);
             ViewData["Testid"] = new SelectList(_context.tests, "TestId", "TestId", testComplete.Testid);
@@ -122,6 +137,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: TestCompletes/Edit/5
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -178,6 +194,7 @@ namespace DistantLearning.Controllers
         }
 
         // GET: TestCompletes/Delete/5
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

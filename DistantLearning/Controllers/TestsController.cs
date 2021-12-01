@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
+    [Authorize(Roles = "Teacher")]
     public class TestsController : Controller
     {
         private readonly DBcontext _context;
@@ -64,8 +66,8 @@ namespace DistantLearning.Controllers
                 await _context.SaveChangesAsync(); 
                 Question QuestionTest = new Question();
                 QuestionTest.TestId = test.TestId;
-                QuestionTest.QuestionName = test.TestName;
-                QuestionTest.QuestionAnswer = test.TestName;
+                QuestionTest.QuestionName = "hiddenanswer";
+                QuestionTest.QuestionAnswer = "hiddenanswer";
                 _context.Add(QuestionTest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -154,6 +156,13 @@ namespace DistantLearning.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            foreach (var answercomp in _context.questions)
+            {
+                if (answercomp.TestId == id)
+                {
+                    _context.questions.Remove(answercomp);
+                }
+            }
             var test = await _context.tests.FindAsync(id);
             _context.tests.Remove(test);
             await _context.SaveChangesAsync();
