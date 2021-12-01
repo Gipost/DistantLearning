@@ -32,9 +32,14 @@ namespace DistantLearning.Controllers
             var dBcontext = _context.testsCompleted.Include(t => t.Student).Include(t => t.Subject).Include(t => t.Test);
             return View(await dBcontext.ToListAsync());
         }
-
-        // GET: TestCompletes/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Mark(int? id)
+        {
+            var Test = await _context.testsCompleted.FindAsync(id);
+            return View(Test);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Mark(int? id, User user)
         {
             if (id == null)
             {
@@ -50,7 +55,7 @@ namespace DistantLearning.Controllers
             {
                 return NotFound();
             }
-            if (testComplete.Mark != -1) 
+            if (testComplete.Mark == -1) 
             { 
                 foreach (var question in _context.answersCompleted.Where(t => t.TestCompleteID == testComplete.TestCompleteId))
                 {
@@ -60,6 +65,8 @@ namespace DistantLearning.Controllers
                     }
                 }
             }
+             _context.testsCompleted.Update(testComplete);
+            await _context.SaveChangesAsync();
             return View(testComplete);
         }
 

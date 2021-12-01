@@ -1,0 +1,27 @@
+﻿@model DistantLearning.Models.TestComplete
+
+@{
+    ViewData["Title"] = "Mark";
+}
+
+<h1>Оценка теста</h1>
+
+<div>
+    <h4>Вы уверены что хотите произвести оценку теста?</h4>
+    <hr />
+    <dl class="row">
+        <form asp-action="Mark">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="TestCompleteId" />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Обратно</a>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
