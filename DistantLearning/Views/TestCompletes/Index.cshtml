@@ -21,11 +21,14 @@
             <th>
                 @Html.DisplayNameFor(model => model.Test)
             </th>
-          @if (@ViewData["Teacher"] == "1")
+            @{
+                var TeacherCons = (int)ViewData["Teacher"];
+            }
+          @if (TeacherCons == 1)
                 {
-            <td>
+            <th>
                 имя студента
-            </td>
+            </th>
                 }
             <th></th>
         </tr>
@@ -48,7 +51,10 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Subject.SubjectName)
             </td>
-            @if (@ViewData["Teacher"] == "1")
+            <td>
+                @Html.DisplayFor(modelItem => item.Test.TestName)
+            </td>
+            @if (TeacherCons == 1)
                 {
             <td>
                 @Html.DisplayFor(modelItem => item.Student.Name)

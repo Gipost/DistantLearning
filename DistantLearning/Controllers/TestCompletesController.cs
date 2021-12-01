@@ -34,15 +34,16 @@ namespace DistantLearning.Controllers
             var user = await GetCurrentUserAsync();
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
-            if (student == null)
+            var teacher = _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
+            if (teacher != null)
             {
-                var teacher = await _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
                 var dBcontext1 = _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
-                ViewData["Teacher"] = "1";
+                ViewData["Teacher"] = 1;
                 return View(await dBcontext1.ToListAsync());
             }
             else
             {
+                ViewData["Teacher"] = 0;
                 var dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
                 return View(await dBcontext.ToListAsync());
             }
