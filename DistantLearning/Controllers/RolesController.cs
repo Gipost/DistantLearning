@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DistantLearning.Controllers
 {
@@ -75,33 +76,32 @@ namespace DistantLearning.Controllers
 
             return NotFound();
         }
-        [HttpPost]
-        public async Task<IActionResult> Edit(string userId, List<string> roles)
+        public async Task<IActionResult> EditIds(string userId)
         {
             // получаем пользователя
             User user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                // получем список ролей пользователя
-                var userRoles = await _userManager.GetRolesAsync(user);
-                // получаем все роли
-                var allRoles = _roleManager.Roles.ToList();
-                // получаем список ролей, которые были добавлены
-                var addedRoles = roles.Except(userRoles);
-                // получаем роли, которые были удалены
-                var removedRoles = userRoles.Except(roles);
-
-                await _userManager.AddToRolesAsync(user, addedRoles);
-
-                await _userManager.RemoveFromRolesAsync(user, removedRoles);
-
-                return RedirectToAction("UserList");
-            }
-
-            return NotFound();
+            return View(user);
         }
         [HttpPost]
-        public async Task<IActionResult> EditId(string userId, List<string> roles)
+        public async Task<IActionResult> EditIds(string Id, [Bind("StudentId,TeacherId")] User user)
+        {
+            // получаем пользователя
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _userManager.UpdateAsync(user);
+                }
+                 catch (DbUpdateConcurrencyException)
+                {
+                        throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(user);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(string userId, List<string> roles)
         {
             // получаем пользователя
             User user = await _userManager.FindByIdAsync(userId);

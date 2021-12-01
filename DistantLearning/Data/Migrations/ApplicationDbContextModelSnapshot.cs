@@ -121,6 +121,10 @@ namespace DistantLearning.Data.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
+                    b.Property<int>("TeacherID")
+                    .HasColumnType("int");
+                    b.Property<int>("StudentID")
+                    .HasColumnType("int");
 
                     b.HasKey("Id");
 

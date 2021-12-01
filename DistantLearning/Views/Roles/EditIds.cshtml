@@ -2,9 +2,22 @@
 @{
     ViewBag.Title = "Редактирование пользователя";
 }
-<form asp-action="Edit" method="post">
-    <input type="hidden" name="userId" value="@Model.UserId" />
-    <input type="number" name="StudentId" value="@Model.StudentId" />
-    <input type="number" name="TeacherId" value="@Model.TeacherId" />
-    <button type="submit" class="btn btn-primary">Сохранить</button>
+<form asp-action="EditIds" method="post">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="StudentId" class="control-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="TeacherId" class="control-label"></label>
+                <input asp-for="TeacherId" class="form-control" />
+                <span asp-validation-for="TeacherId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
 </form>
