@@ -9,6 +9,8 @@ namespace DistantLearning.Models
         public string Name { get; set; }
         [Display(Name = "Возраст")]
         public int Age { get; set; }
+        [Display(Name = "Пользователь")]
+        public string? UserID { get; set; }
 
     }
 }

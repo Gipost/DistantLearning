@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DistantLearning.Controllers
 {
@@ -13,10 +16,12 @@ namespace DistantLearning.Controllers
     {
         private readonly DBcontext _context;
         private readonly ILogger _logger;
-        public StudentsController(DBcontext context, ILogger<StudentsController> logger)
+        UserManager<User> _userManager;
+        public StudentsController(DBcontext context, ILogger<StudentsController> logger, UserManager<User> userManager)
         {
             _context = context;
             _logger = logger;
+            _userManager = userManager;
         }
 
                 // GET: Students
@@ -54,6 +59,8 @@ namespace DistantLearning.Controllers
         // GET: Students/Create
         public IActionResult Create()
         {
+            ViewData["GroupID"] = new SelectList(_context.Groups, "Id", "Name");
+            ViewData["UserID"] = new SelectList(_userManager.Users, "Id", "UserName");
             return View();
         }
 
@@ -62,7 +69,7 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("groupID,ID,Name,Age")] Student student)
+        public async Task<IActionResult> Create([Bind("groupID,ID,Name,Age,UserID")] Student student)
         {
             if (ModelState.IsValid)
             {
@@ -71,6 +78,8 @@ namespace DistantLearning.Controllers
                 _logger.LogInformation("Был создан студент");
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["GroupID"] = new SelectList(_context.Groups, "Id", "Id", student.groupID);
+            ViewData["UserID"] = new SelectList(_userManager.Users, "Id", "Id", student.UserID);
             return View(student);
         }
 
@@ -87,6 +96,7 @@ namespace DistantLearning.Controllers
             {
                 return NotFound();
             }
+            ViewData["GroupID"] = new SelectList(_context.Groups, "Id", "Name", student.groupID);
             return View(student);
         }
 
@@ -95,7 +105,7 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("groupID,ID,Name,Age")] Student student)
+        public async Task<IActionResult> Edit(int id, [Bind("groupID,ID,Name,Age,UserID")] Student student)
         {
             if (id != student.ID)
             {

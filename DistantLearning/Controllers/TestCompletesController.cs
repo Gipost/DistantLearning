@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Claims;
 
 namespace DistantLearning.Controllers
 {
+
     public class TestCompletesController : Controller
     {
         private readonly DBcontext _context;
@@ -29,7 +31,10 @@ namespace DistantLearning.Controllers
         // GET: TestCompletes
         public async Task<IActionResult> Index()
         {
-            var dBcontext = _context.testsCompleted.Include(t => t.Student).Include(t => t.Subject).Include(t => t.Test);
+            var user = await GetCurrentUserAsync();
+            var student = await _context.Students
+                .FirstOrDefaultAsync(m => m.UserID == user.Id);
+            var dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
             return View(await dBcontext.ToListAsync());
         }
         public async Task<IActionResult> Mark(int? id)
@@ -88,10 +93,9 @@ namespace DistantLearning.Controllers
         {
             testComplete.Mark = -1;
             var user = await GetCurrentUserAsync();
-            if (user.StudentId != null) //берем айдишник студента для добавление его теста
-            {
-                testComplete.Studentid = (int)user.StudentId; 
-            }
+            var student = await _context.Students
+                .FirstOrDefaultAsync(m => m.UserID == user.Id);
+            testComplete.Studentid = student.ID;
             if (ModelState.IsValid)
             {
                 _context.Add(testComplete);

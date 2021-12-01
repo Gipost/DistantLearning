@@ -6,16 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DistantLearning.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DistantLearning.Controllers
 {
     public class TeachersController : Controller
     {
         private readonly DBcontext _context;
-
-        public TeachersController(DBcontext context)
+        UserManager<User> _userManager;
+        public TeachersController(DBcontext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Teachers
@@ -46,6 +50,8 @@ namespace DistantLearning.Controllers
         // GET: Teachers/Create
         public IActionResult Create()
         {
+            ViewData["DegreeId"] = new SelectList(_context.Degrees, "id", "name");
+            ViewData["UserID"] = new SelectList(_userManager.Users, "Id", "UserName");
             return View();
         }
 
@@ -54,7 +60,7 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DegreeId,ID,Name,Age")] Teacher teacher)
+        public async Task<IActionResult> Create([Bind("DegreeId,ID,Name,Age,UserID")] Teacher teacher)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +68,8 @@ namespace DistantLearning.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["DegreeId"] = new SelectList(_context.Degrees, "id", "id", teacher.DegreeId);
+            ViewData["UserID"] = new SelectList(_userManager.Users, "Id", "Id", teacher.UserID);
             return View(teacher);
         }
 
@@ -86,7 +94,7 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DegreeId,ID,Name,Age")] Teacher teacher)
+        public async Task<IActionResult> Edit(int id, [Bind("DegreeId,ID,Name,Age,UserID")] Teacher teacher)
         {
             if (id != teacher.ID)
             {

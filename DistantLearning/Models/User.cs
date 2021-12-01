@@ -6,8 +6,6 @@ namespace DistantLearning.Models
 {
     public class User:IdentityUser
     {
-        public int? StudentId;
-        public int? TeacherId;
         public virtual Teacher? Teacher { get; set; }
         public virtual Student? Student { get; set; }
     }

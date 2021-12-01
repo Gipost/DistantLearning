@@ -7,12 +7,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StudentId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TeacherId)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -23,14 +17,7 @@
                 @Html.DisplayFor(modelItem => user.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => user.StudentId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => user.TeacherId)
-            </td>
-            <td>
                 <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-userid="@user.Id">Права доступа</a>
-                <a class="btn btn-sm btn-primary" asp-action="EditIds" asp-route-userid="@user.Id">Привязка к лицу</a>
             </td>
         </tr>
     }

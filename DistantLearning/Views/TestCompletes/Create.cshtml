@@ -1,4 +1,7 @@
-﻿@model DistantLearning.Models.TestComplete
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model DistantLearning.Models.TestComplete
 
 @{
     ViewData["Title"] = "Create";
