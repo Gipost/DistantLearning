@@ -35,18 +35,17 @@ namespace DistantLearning.Controllers
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
             var teacher = _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
+            var dBcontext = _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
             if (teacher != null)
             {
-                var dBcontext1 = _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
                 ViewData["Teacher"] = 1;
-                return View(await dBcontext1.ToListAsync());
             }
             else
             {
                 ViewData["Teacher"] = 0;
-                var dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
-                return View(await dBcontext.ToListAsync());
+                dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
             }
+            return View(await dBcontext.ToListAsync());
         }
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> Mark(int? id)
@@ -147,11 +146,15 @@ namespace DistantLearning.Controllers
             }
 
             var testComplete = await _context.testsCompleted.FindAsync(id);
+            var test = await _context.tests.FindAsync(testComplete.Testid);
             if (testComplete == null)
             {
                 return NotFound();
             }
-            var dBcontext = _context.answersCompleted.Where(c => c.TestCompleteID == id).Include(c => c.Question);
+            else { 
+            ViewData["Testname"] = test.TestName;
+            }
+        var dBcontext = _context.answersCompleted.Where(c => c.TestCompleteID == id).Include(c => c.Question);
             return View(await dBcontext.ToListAsync());
             
         }
