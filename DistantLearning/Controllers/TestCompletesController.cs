@@ -16,6 +16,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 namespace DistantLearning.Controllers
 {
+    [Authorize]
     public class TestCompletesController : Controller
     {
         private readonly DBcontext _context;
@@ -34,16 +35,17 @@ namespace DistantLearning.Controllers
             var user = await GetCurrentUserAsync();
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
-            var teacher = _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
-            var dBcontext = _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
+            var dBcontext =  _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
             if (teacher != null)
             {
                 ViewData["Teacher"] = 1;
             }
             else
+                if (student != null)
             {
                 ViewData["Teacher"] = 0;
-                dBcontext = _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
+                dBcontext =  _context.testsCompleted.Where(t => t.Studentid == student.ID).Include(t => t.Subject).Include(t => t.Test);
             }
             return View(await dBcontext.ToListAsync());
         }

@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DistantLearning.Controllers
 {
-
+    [Authorize]
     public class StudentsController : Controller
     {
         private readonly DBcontext _context;
