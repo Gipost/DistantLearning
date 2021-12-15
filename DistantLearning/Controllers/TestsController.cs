@@ -68,7 +68,7 @@ namespace DistantLearning.Controllers
                 QuestionTest.TestId = test.TestId;
                 QuestionTest.QuestionName = "hiddenanswer";
                 QuestionTest.QuestionAnswer = "hiddenanswer";
-                _context.Add(QuestionTest);
+                _context.questions.Add(QuestionTest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }

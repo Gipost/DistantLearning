@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Packaging;
+
 namespace DistantLearning.Controllers
 {
     [Authorize]
@@ -36,7 +38,7 @@ namespace DistantLearning.Controllers
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
             var teacher = await _context.Teachers.FirstOrDefaultAsync(m => m.UserID == user.Id);
-            var dBcontext =  _context.testsCompleted.Include(t => t.Subject).Include(t => t.Test);
+            var dBcontext =  _context.testsCompleted.Include(t => t.Student).Include(t => t.Subject).Include(t => t.Test);
             if (teacher != null)
             {
                 ViewData["Teacher"] = 1;
@@ -103,7 +105,7 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TestCompleteId,Studentid,Subjectid,Testid,Mark")] TestComplete testComplete)
+        public async Task<IActionResult> Create( TestComplete testComplete)
         {
             testComplete.Mark = -1;
             var user = await GetCurrentUserAsync();
@@ -115,21 +117,29 @@ namespace DistantLearning.Controllers
             testComplete.Subjectid = test.SubjectId;
             if (ModelState.IsValid)
             {
-                _context.Add(testComplete);
+                await _context.testsCompleted.AddAsync(testComplete);
                 await _context.SaveChangesAsync();
             }
-            AnswerComplete answer = new AnswerComplete();
-            var questions = _context.questions.ToList();
-            foreach (var question in questions)
+
+            var answerCompletes = new List<AnswerComplete>();
+            var questions = _context.questions.Where(m => m.TestId == testComplete.Testid);
+
+            foreach (var question in questions.ToList())
             {
+
                 if (question.TestId == testComplete.Testid && question.QuestionName != "hiddenanswer")
                 {
+                    var answer = new AnswerComplete();
                     answer.TestCompleteID = testComplete.TestCompleteId;
                     answer.QuestionID = question.QuestionId;
                     answer.RightAnswer = question.QuestionAnswer;
-                    _context.answersCompleted.Add(answer);
-                    answer = new AnswerComplete();
+                    answerCompletes.Add(answer);
                 }
+                
+            }
+            foreach (var answer in answerCompletes)
+            {
+                _context.answersCompleted.Add(answer);
                 await _context.SaveChangesAsync();
             }
             ViewData["Studentid"] = new SelectList(_context.Students, "ID", "ID", testComplete.Studentid);
