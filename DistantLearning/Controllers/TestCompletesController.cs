@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
+using System.Threading;
 using NuGet.Packaging;
 
 namespace DistantLearning.Controllers
@@ -52,6 +54,51 @@ namespace DistantLearning.Controllers
             return View(await dBcontext.ToListAsync());
         }
         [Authorize(Roles = "Student")]
+        public async Task<IActionResult> InsertQuestions(int? id)
+        {
+            var Test = await _context.testsCompleted.FindAsync(id);
+            return View(Test);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InsertQuestions(int? id, User user)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var testComplete = await _context.testsCompleted
+                .Include(t => t.Student)
+                .Include(t => t.Subject)
+                .Include(t => t.Test)
+                .FirstOrDefaultAsync(m => m.TestCompleteId == id);
+            if (testComplete == null)
+            {
+                return NotFound();
+            }
+            foreach (var question in _context.questions.Where(t => t.TestId == testComplete.Test.TestId))
+
+            {
+
+                if (question.TestId == testComplete.Testid && question.QuestionName != "hiddenanswer")
+                {
+                    var answer = new AnswerComplete();
+                    answer.TestCompleteID = testComplete.TestCompleteId;
+                    answer.QuestionID = question.QuestionId;
+                    answer.RightAnswer = question.QuestionAnswer;
+                    _context.answersCompleted.Add(answer);
+                }
+
+            }
+            await _context.SaveChangesAsync();
+            _context.testsCompleted.Update(testComplete);
+            await _context.SaveChangesAsync();
+            return View(testComplete);
+        }
+
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Mark(int? id)
         {
             var Test = await _context.testsCompleted.FindAsync(id);
@@ -75,7 +122,7 @@ namespace DistantLearning.Controllers
             {
                 return NotFound();
             }
-            if (testComplete.Mark == -1) 
+            if (testComplete.Mark == -1)
             {
                 testComplete.Mark = 0;
                 foreach (var question in _context.answersCompleted.Where(t => t.TestCompleteID == testComplete.TestCompleteId))
@@ -86,10 +133,11 @@ namespace DistantLearning.Controllers
                     }
                 }
             }
-             _context.testsCompleted.Update(testComplete);
+            _context.testsCompleted.Update(testComplete);
             await _context.SaveChangesAsync();
             return View(testComplete);
         }
+
 
         // GET: TestCompletes/Create
         [Authorize(Roles = "Student")]
@@ -105,46 +153,46 @@ namespace DistantLearning.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( TestComplete testComplete)
+        public async Task<IActionResult> Create([Bind("TestCompleteId,Studentid,Subjectid,Testid,Mark")] TestComplete testComplete)
         {
             testComplete.Mark = -1;
             var user = await GetCurrentUserAsync();
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.UserID == user.Id);
             testComplete.Studentid = student.ID;
-            var test = await _context.tests
+            var test = await _context.tests.Include(m => m.Subject).Include(m => m.Question)
     .FirstOrDefaultAsync(m => m.TestId == testComplete.Testid);
             testComplete.Subjectid = test.SubjectId;
+
             if (ModelState.IsValid)
             {
-                await _context.testsCompleted.AddAsync(testComplete);
+                 _context.testsCompleted.Add(testComplete);
                 await _context.SaveChangesAsync();
             }
 
             var answerCompletes = new List<AnswerComplete>();
-            var questions = _context.questions.Where(m => m.TestId == testComplete.Testid);
-
-            foreach (var question in questions.ToList())
+            var dbc = _context.questions.Select(q => new Question
             {
-
-                if (question.TestId == testComplete.Testid && question.QuestionName != "hiddenanswer")
-                {
+                QuestionAnswer = q.QuestionAnswer,
+                QuestionId = q.QuestionId,
+                QuestionName = q.QuestionName,
+                TestId = q.TestId,
+            }).ToList();
+            foreach (var question in dbc.ToList())
+            {
+                if (question.QuestionName != "hiddenanswer" && question.TestId == test.TestId) { 
                     var answer = new AnswerComplete();
                     answer.TestCompleteID = testComplete.TestCompleteId;
                     answer.QuestionID = question.QuestionId;
                     answer.RightAnswer = question.QuestionAnswer;
                     answerCompletes.Add(answer);
-                }
-                
-            }
-            foreach (var answer in answerCompletes)
-            {
-                _context.answersCompleted.Add(answer);
+                    _context.answersCompleted.Add(answer);
                 await _context.SaveChangesAsync();
+                }
             }
-            ViewData["Studentid"] = new SelectList(_context.Students, "ID", "ID", testComplete.Studentid);
-            ViewData["Subjectid"] = new SelectList(_context.subjects, "SubjectId", "SubjectId", testComplete.Subjectid);
-            ViewData["Testid"] = new SelectList(_context.tests, "TestId", "TestId", testComplete.Testid);
+                
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
